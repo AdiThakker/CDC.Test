@@ -5,11 +5,12 @@ namespace CDC.Service.Records
 {
     public class CustomerCDCRecord : OutboxCDCRecord
     {
-        private const string _pfiNumberFieldName = "PFINumber";
-        private const string _pfiLoanNumberFieldName = "PFILoanNumber";
-        private const string _loanAmountFieldName = "LoanAmount";
-        private const string _mcNumberFieldName = "MCNumber";
-        private const string _loanPurposeFieldName = "LoanPurpose";
+        private const string _firstName = "FirstName";
+        private const string _lastName = "LastName";
+        private const string _address = "Address";
+        private const string _city = "City";
+        private const string _state = "State";
+        private const string _country = "Country";
 
         public CustomerCDCRecord()
         {
@@ -18,37 +19,39 @@ namespace CDC.Service.Records
         public CustomerCDCRecord(IDataReader reader)
             : base(reader)
         {
-            PFINumber = ExtractValueFromReaderIfPresent<int>(reader, _pfiNumberFieldName);
-            PFILoanNumber = ExtractValueFromReaderIfPresent<string>(reader, _pfiLoanNumberFieldName);
-            LoanAmount = ExtractValueFromReaderIfPresent<decimal>(reader, _loanAmountFieldName);
-            MCNumber = ExtractValueFromReaderIfPresent<int>(reader, _mcNumberFieldName);
-            LoanPurpose = ExtractValueFromReaderIfPresent<string>(reader, _loanPurposeFieldName) ?? string.Empty;
+            FirstName = ExtractValueFromReaderIfPresent<string>(reader, _firstName);
+            LastName = ExtractValueFromReaderIfPresent<string>(reader, _lastName);
+            Address = ExtractValueFromReaderIfPresent<string>(reader, _address);
+            City = ExtractValueFromReaderIfPresent<string>(reader, _city);
+            State = ExtractValueFromReaderIfPresent<string>(reader, _state);
+            Country = ExtractValueFromReaderIfPresent<string>(reader, _country);
         }
 
-        public int? PFINumber { get; set; }
+        public string FirstName { get; set; }
 
-        public string PFILoanNumber { get; set; }
+        public string LastName { get; set; }
 
-        public decimal LoanAmount { get; set; }
+        public string Address { get; set; }
 
-        public int? MCNumber { get; set; }
+        public string City { get; set; }
 
-        public string LoanPurpose { get; set; }
+        public string State { get; set; }
 
-        public static CustomerCDCRecord Update(IDataReader reader, ref CustomerCDCRecord loanCDCRecord)
+        public string Country { get; set; }
+
+        public static CustomerCDCRecord Update(IDataReader reader, ref CustomerCDCRecord cdcRecord)
         {
-            var outboxRrecord = (OutboxCDCRecord)loanCDCRecord;
+            var outboxRrecord = (OutboxCDCRecord)cdcRecord;
             Update(reader, ref outboxRrecord);
-            loanCDCRecord.PFINumber = loanCDCRecord.ExtractValueFromReaderIfPresent<int>(reader, _pfiNumberFieldName);
-            loanCDCRecord.PFILoanNumber =
-                loanCDCRecord.ExtractValueFromReaderIfPresent<string>(reader, _pfiLoanNumberFieldName);
-            loanCDCRecord.LoanAmount =
-                loanCDCRecord.ExtractValueFromReaderIfPresent<decimal>(reader, _loanAmountFieldName);
-            loanCDCRecord.MCNumber = loanCDCRecord.ExtractValueFromReaderIfPresent<int>(reader, _mcNumberFieldName);
-            loanCDCRecord.LoanPurpose =
-                loanCDCRecord.ExtractValueFromReaderIfPresent<string>(reader, _loanPurposeFieldName) ?? string.Empty;
 
-            return loanCDCRecord;
+            cdcRecord.FirstName = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _firstName);
+            cdcRecord.LastName = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _lastName);
+            cdcRecord.Address = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _address);
+            cdcRecord.City = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _city);
+            cdcRecord.State = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _state);
+            cdcRecord.Country = cdcRecord.ExtractValueFromReaderIfPresent<string>(reader, _country);
+
+            return cdcRecord;
         }
     }
 

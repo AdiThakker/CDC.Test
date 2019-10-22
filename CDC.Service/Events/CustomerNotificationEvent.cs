@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CDC.Service.Events.Base;
 
 namespace CDC.Service.Events
 {
-    class CustomerNotificationEvent
+    public class CustomerNotificationEvent : CDCEvent
     {
+        public CDCEventTypeEnum CDCEventType { get; set; }
+
+        public CustomerCDCEvent CustomerEvent { get; set; }
     }
 }

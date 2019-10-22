@@ -4,14 +4,16 @@ namespace CDC.Service.Events
 {
     public class CustomerCDCEvent : CDCEvent
     {
-        public int? PFINumber { get; set; }
+        public string FirstName { get; set; }
 
-        public string PFILoanNumber { get; set; }
+        public string LastName { get; set; }
 
-        public decimal LoanAmount { get; set; }
+        public string Address { get; set; }
 
-        public int? MCNumber { get; set; }
+        public string City { get; set; }
 
-        public string LoanPurpose { get; set; }
+        public string State { get; set; }
+
+        public string Country { get; set; }
     }
 }

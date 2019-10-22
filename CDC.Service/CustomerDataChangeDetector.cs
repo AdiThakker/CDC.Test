@@ -6,20 +6,19 @@ using CDC.Service.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace CDC.Service
 {
     public class CustomerDataChangeDetector
     {
-        public event EventHandler<CustomerCDCEventArgs<CustomerCDCEvent>> HandleCustomerCDCEvent;
+        public event EventHandler<CustomerCDCEventArgs<CustomerNotificationEvent>> HandleCustomerNotificationEvent;
 
         public void CheckForAndPublishChanges()
         {
             var allChangeRecords = new Dictionary<string, OutboxCDCRecord>();
             var orderedChanges = new List<string>();
 
-            RunStoredProcedure("CDC.GetCustomerCDCUpdates", reader =>
+            RunStoredProcedure("dbo.GetCDCUpdates", reader =>
             {
                 while (reader.Read())
                 {
@@ -30,8 +29,7 @@ namespace CDC.Service
                         CustomerCDCRecord.Update(reader, ref record);
                 }
 
-                reader.NextResult();
-
+                
                 reader.NextResult();
 
                 while (reader.Read()) orderedChanges.Add(Convert.ToBase64String((byte[])reader.GetValue(0)));
@@ -65,22 +63,22 @@ namespace CDC.Service
 
         private void SendCustomerCDCEvent(CustomerCDCRecord cdc)
         {
-            var customerEvent = default(CustomerCDCEvent);
+            var customerEvent = default(CustomerNotificationEvent);
 
             switch (cdc.Operation)
             {
                 case CDCOperation.Delete:
-                    customerEvent = new CustomerCDCEvent
+                    customerEvent = new CustomerNotificationEvent
                     {
                         CDCEventType = CDCEventTypeEnum.Delete,
-                        CustomerEvent = GetLoanProperties(cdc)
+                        CustomerEvent = GetCustomerProperties(cdc)
                     };
                     break;
                 case CDCOperation.Insert:
-                    customerEvent = new CustomerCDCEvent
+                    customerEvent = new CustomerNotificationEvent
                     {
                         CDCEventType = CDCEventTypeEnum.Insert,
-                        LoanEvent = GetLoanProperties(cdc)
+                        CustomerEvent = GetCustomerProperties(cdc)
                     };
                     break;
                 case CDCOperation.UpdateBeforeChange:
@@ -88,32 +86,33 @@ namespace CDC.Service
                 case CDCOperation.UpdateAfterChange:
                 case CDCOperation.Upsert:
 
-                    customerEvent = new CustomerCDCEvent
+                    customerEvent = new CustomerNotificationEvent
                     {
                         CDCEventType = CDCEventTypeEnum.Upsert,
-                        LoanEvent = GetLoanProperties(cdc)
+                        CustomerEvent = GetCustomerProperties(cdc)
                     };
                     break;
             }
 
             // publish Event
-            if (customerEvent != default(CustomerCDCEvent))
+            if (customerEvent != default(CustomerNotificationEvent))
             {
-                var args = new LoanCDCEventArgs<LoanCDCEvent>(customerEvent);
-                HandleLoanCDCEvent?.Invoke(this, args);
+                var args = new CustomerCDCEventArgs<CustomerNotificationEvent>(customerEvent);
+                HandleCustomerNotificationEvent?.Invoke(this, args);
             }
         }
 
-        private static CustomerCDCEvent GetLoanProperties(CustomerCDCRecord cdc)
+        private static CustomerCDCEvent GetCustomerProperties(CustomerCDCRecord cdc)
         {
             return new CustomerCDCEvent
             {
-                PFINumber = cdc.PFINumber,
-                PFILoanNumber = cdc.PFILoanNumber,
-                LoanAmount = cdc.LoanAmount,
-                LoanPurpose = cdc.LoanPurpose,
-                MCNumber = cdc.MCNumber,
-                CorrelationId = Guid.NewGuid().ToString() 
+                FirstName = cdc.FirstName,
+                LastName = cdc.LastName,
+                Address = cdc.Address,
+                State = cdc.State,
+                City = cdc.City,
+                Country = cdc.Country,
+                CorrelationId = Guid.NewGuid().ToString()
             };
         }
 
