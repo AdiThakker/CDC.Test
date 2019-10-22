@@ -29,7 +29,7 @@ namespace CDC.Service
                         CustomerCDCRecord.Update(reader, ref record);
                 }
 
-                
+
                 reader.NextResult();
 
                 while (reader.Read()) orderedChanges.Add(Convert.ToBase64String((byte[])reader.GetValue(0)));
@@ -57,7 +57,7 @@ namespace CDC.Service
 
             //Store the record in outbox postmarks
             if (sentMessages.Rows.Count > 0)
-                RunStoredProcedure("cdc.UpdateOutboxEventSentTimeStamp", null,
+                RunStoredProcedure("dbo.UpdateOutboxEventSentTimeStamp", null,
                     new Dictionary<string, object> { { "@postmarks", sentMessages } });
         }
 
@@ -119,7 +119,7 @@ namespace CDC.Service
         private void RunStoredProcedure(string procedureName, Action<IDataReader> loadDataAction,
             Dictionary<string, object> parameters = null)
         {
-            using (var connection = CDCHelper.GetConnection(_config.ConnectionString))
+            using (var connection = CDCHelper.GetConnection("Data Source=WIN-JEEQO9D602;Initial Catalog=CDC;Integrated Security=True;"))
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = procedureName;

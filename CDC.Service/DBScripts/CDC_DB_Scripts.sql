@@ -97,3 +97,22 @@ AS
 
 RETURN 0
 
+CREATE TYPE dbo.OutboxType AS TABLE
+(
+	ChangeId bigint NOT NULL,
+    [EventSentUTC] DATETIMEOFFSET (7) NULL
+)
+
+GO
+
+CREATE PROCEDURE [dbo].[UpdateOutboxEventSentTimeStamp]
+	@postmarks dbo.OutboxType READONLY
+AS
+
+	UPDATE Outbox  
+	SET EventSentUTC = P.[EventSentUTC] 
+	FROM Outbox o  JOIN @postmarks p on p.ChangeId = o.ChangeId
+
+
+RETURN 0
+
